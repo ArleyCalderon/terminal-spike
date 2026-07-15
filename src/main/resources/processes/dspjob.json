@@ -21,6 +21,13 @@
       "continueOnError": false
     },
     {
+    "id": "wait-login-keyboard",
+    "action": "WAIT_FOR_KEYBOARD_UNLOCKED",
+    "description": "Esperar que la pantalla de login permita escritura",
+    "timeoutSeconds": 20,
+    "continueOnError": false
+    },
+    {
       "id": "write-username",
       "action": "WRITE_FIELD",
       "description": "Escribir el usuario",
