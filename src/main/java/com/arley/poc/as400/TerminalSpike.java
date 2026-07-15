@@ -3,7 +3,8 @@ package com.arley.poc.as400;
 import java.time.Duration;
 
 import org.tn5250j.framework.tn5250.Screen5250;
-
+import com.arley.poc.as400.result.ExecutionResult;
+import com.arley.poc.as400.result.ExecutionStatus;
 import com.arley.poc.as400.config.As400ConnectionConfig;
 import com.arley.poc.as400.engine.ProcessExecutor;
 import com.arley.poc.as400.engine.ProcessLoader;
@@ -101,7 +102,22 @@ public final class TerminalSpike {
                         variableResolver
                     );
 
-                processExecutor.execute(process);
+                ExecutionResult executionResult =
+                    processExecutor.execute(process);
+
+                printExecutionSummary(executionResult);
+
+                if (
+                    executionResult.status()
+                        == ExecutionStatus.FAILED
+                ) {
+                    throw new IllegalStateException(
+                        "El proceso falló en el paso "
+                            + executionResult.failedStepId()
+                            + ": "
+                            + executionResult.errorMessage()
+                    );
+                }
 
                 System.out.println();
                 System.out.println(
@@ -178,4 +194,51 @@ public final class TerminalSpike {
 
         System.out.println();
     }
+    private static void printExecutionSummary(
+    ExecutionResult result
+) {
+    System.out.println();
+    System.out.println(
+        "========================================"
+    );
+    System.out.println(
+        " RESULTADO ESTRUCTURADO"
+    );
+    System.out.println(
+        "========================================"
+    );
+
+    System.out.println(
+        "Proceso: " + result.processId()
+    );
+
+    System.out.println(
+        "Estado: " + result.status()
+    );
+
+    System.out.println(
+        "Duración: "
+            + result.durationMs()
+            + " ms"
+    );
+
+    System.out.println(
+        "Pasos ejecutados: "
+            + result.steps().size()
+    );
+
+    if (result.failedStepId() != null) {
+        System.out.println(
+            "Paso fallido: "
+                + result.failedStepId()
+        );
+    }
+
+    if (result.errorMessage() != null) {
+        System.out.println(
+            "Error: "
+                + result.errorMessage()
+        );
+    }
+}
 }
