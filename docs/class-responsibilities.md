@@ -1,17 +1,25 @@
-TerminalSpike
-    └── orquesta el proceso actual
+# Responsabilidades de las clases
 
-TerminalSession
-    └── conexión, TLS y cierre de la sesión
+## TerminalSpike
 
-ScreenReader
-    └── lectura de pantalla, textos y campos editables
+Orquesta el proceso actual.
 
-TerminalActions
-    └── escribir, Enter, PF1–PF24 y esperas
+## TerminalSession
 
-As400ConnectionConfig
-    └── host, puerto y TLS
+Administra la conexión, TLS y cierre de la sesión.
 
-TerminalTimeoutException
-    └── errores de espera
+## ScreenReader
+
+Lee la pantalla, busca textos y obtiene campos editables.
+
+## TerminalActions
+
+Permite escribir, enviar Enter, PF1–PF24 y realizar esperas.
+
+## As400ConnectionConfig
+
+Administra el host, puerto y configuración TLS.
+
+## TerminalTimeoutException
+
+Representa errores producidos por tiempos de espera agotados.
