@@ -47,7 +47,7 @@ public final class TerminalSpike {
 
             String username = requireEnvironmentVariable(
                 "AS400_USERNAME"
-            );
+            ).trim().toUpperCase();
 
             password = requireEnvironmentVariable(
                 "AS400_PASSWORD"
