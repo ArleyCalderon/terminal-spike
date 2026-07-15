@@ -1,0 +1,55 @@
+# Maven
+target/
+dependency-reduced-pom.xml
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
+
+# Carpeta temporal usada para inspeccionar librerías
+inspection/
+target/
+.idea/
+.vscode/
+*.log
+
+# Java
+*.class
+hs_err_pid*
+replay_pid*
+
+# IDEs y editores
+.idea/
+*.iml
+.vscode/
+.classpath
+.project
+.settings/
+
+# Logs
+*.log
+logs/
+
+# Variables y configuraciones locales
+.env
+.env.*
+!.env.example
+application-local.properties
+application-local.yml
+application-local.yaml
+
+# Archivos del sistema operativo
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Maven Wrapper cache (opcional)
+.mvn/wrapper/maven-wrapper.jar
+
+# Archivos temporales
+*.tmp
+*.swp
+
+# Configuración local
+*.env
