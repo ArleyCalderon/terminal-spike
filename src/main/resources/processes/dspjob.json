@@ -1,0 +1,143 @@
+{
+  "id": "dspjob",
+  "name": "Consulta DSPJOB",
+  "version": "1.0.0",
+  "description": "Inicia sesión, ejecuta DSPJOB, regresa al menú y cierra la sesión.",
+  "steps": [
+    {
+      "id": "wait-login-text",
+      "action": "WAIT_FOR_TEXT",
+      "description": "Esperar la pantalla de autenticación",
+      "text": "Your user name:",
+      "timeoutSeconds": 20,
+      "continueOnError": false
+    },
+    {
+      "id": "wait-login-fields",
+      "action": "WAIT_FOR_EDITABLE_FIELDS",
+      "description": "Esperar los campos de usuario y contraseña",
+      "minimumFields": 2,
+      "timeoutSeconds": 20,
+      "continueOnError": false
+    },
+    {
+      "id": "write-username",
+      "action": "WRITE_FIELD",
+      "description": "Escribir el usuario",
+      "fieldIndex": 0,
+      "value": "${AS400_USERNAME}",
+      "continueOnError": false
+    },
+    {
+      "id": "write-password",
+      "action": "WRITE_FIELD",
+      "description": "Escribir la contraseña",
+      "fieldIndex": 1,
+      "value": "${AS400_PASSWORD}",
+      "continueOnError": false
+    },
+    {
+      "id": "submit-login",
+      "action": "PRESS_KEY",
+      "description": "Enviar las credenciales",
+      "key": "ENTER",
+      "continueOnError": false
+    },
+    {
+      "id": "wait-main-menu",
+      "action": "WAIT_FOR_TEXT",
+      "description": "Confirmar el inicio de sesión",
+      "text": "IBM i Main Menu",
+      "timeoutSeconds": 30,
+      "continueOnError": false
+    },
+    {
+      "id": "wait-main-menu-keyboard",
+      "action": "WAIT_FOR_KEYBOARD_UNLOCKED",
+      "description": "Esperar que el menú permita escritura",
+      "timeoutSeconds": 20,
+      "continueOnError": false
+    },
+    {
+      "id": "write-dspjob",
+      "action": "WRITE_FIELD",
+      "description": "Escribir el comando DSPJOB",
+      "fieldIndex": 0,
+      "value": "DSPJOB",
+      "continueOnError": false
+    },
+    {
+      "id": "run-dspjob",
+      "action": "PRESS_KEY",
+      "description": "Ejecutar el comando DSPJOB",
+      "key": "ENTER",
+      "continueOnError": false
+    },
+    {
+      "id": "wait-display-job",
+      "action": "WAIT_FOR_TEXT",
+      "description": "Confirmar la pantalla Display Job",
+      "text": "Display Job",
+      "timeoutSeconds": 20,
+      "continueOnError": false
+    },
+    {
+      "id": "wait-display-job-keyboard",
+      "action": "WAIT_FOR_KEYBOARD_UNLOCKED",
+      "description": "Esperar que Display Job permita interacción",
+      "timeoutSeconds": 20,
+      "continueOnError": false
+    },
+    {
+      "id": "print-display-job",
+      "action": "PRINT_SCREEN",
+      "description": "Imprimir la pantalla de resultado",
+      "continueOnError": false
+    },
+    {
+      "id": "return-main-menu",
+      "action": "PRESS_KEY",
+      "description": "Regresar al menú principal",
+      "key": "PF3",
+      "continueOnError": false
+    },
+    {
+      "id": "wait-main-menu-after-pf3",
+      "action": "WAIT_FOR_TEXT",
+      "description": "Confirmar el regreso al menú principal",
+      "text": "IBM i Main Menu",
+      "timeoutSeconds": 20,
+      "continueOnError": false
+    },
+    {
+      "id": "wait-keyboard-after-pf3",
+      "action": "WAIT_FOR_KEYBOARD_UNLOCKED",
+      "description": "Esperar que el menú permita escritura",
+      "timeoutSeconds": 20,
+      "continueOnError": false
+    },
+    {
+      "id": "write-signoff",
+      "action": "WRITE_FIELD",
+      "description": "Escribir el comando SIGNOFF",
+      "fieldIndex": 0,
+      "value": "SIGNOFF",
+      "continueOnError": false
+    },
+    {
+      "id": "run-signoff",
+      "action": "PRESS_KEY",
+      "description": "Ejecutar SIGNOFF",
+      "key": "ENTER",
+      "continueOnError": false
+    },
+    {
+      "id": "wait-final-screen",
+      "action": "WAIT_FOR_TEXT",
+      "description": "Confirmar la pantalla final cuando esté disponible",
+      "text": "Your user name:",
+      "timeoutSeconds": 15,
+      "continueOnError": true
+    }
+  ]
+}
