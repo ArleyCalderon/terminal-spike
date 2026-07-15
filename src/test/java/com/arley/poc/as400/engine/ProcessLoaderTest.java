@@ -29,9 +29,15 @@ class ProcessLoaderTest {
             process.steps().get(0).action()
         );
 
+        var usernameStep = process.steps()
+            .stream()
+            .filter(step -> "write-username".equals(step.id()))
+            .findFirst()
+            .orElseThrow();
+
         assertEquals(
             "${AS400_USERNAME}",
-            process.steps().get(2).value()
+            usernameStep.value()
         );
     }
 }
