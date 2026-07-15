@@ -5,171 +5,133 @@
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="
     http://maven.apache.org/POM/4.0.0
-    http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    https://maven.apache.org/xsd/maven-4.0.0.xsd">
 
   <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-parent</artifactId>
+    <version>3.5.16</version>
+    <relativePath />
+  </parent>
 
   <groupId>com.arley.poc.as400</groupId>
   <artifactId>terminal-spike</artifactId>
   <version>0.1.0-SNAPSHOT</version>
 
   <name>terminal-spike</name>
+  <description>Motor de automatización para terminales AS400</description>
 
   <properties>
+    <java.version>17</java.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <maven.compiler.release>17</maven.compiler.release>
-    <jackson.version>2.22.1</jackson.version>
   </properties>
 
-  <dependencyManagement>
-    <dependencies>
-      <dependency>
-        <groupId>org.junit</groupId>
-        <artifactId>junit-bom</artifactId>
-        <version>5.11.0</version>
-        <type>pom</type>
-        <scope>import</scope>
-      </dependency>
-    </dependencies>
-  </dependencyManagement>
-
   <dependencies>
+
+    <!-- Cliente de terminal AS400 / TN5250 -->
     <dependency>
       <groupId>com.github.vebqa</groupId>
       <artifactId>tn5250j</artifactId>
       <version>0.7.6.4</version>
+
+      <exclusions>
+        <exclusion>
+          <groupId>org.slf4j</groupId>
+          <artifactId>slf4j-simple</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
 
+    <!-- API REST con Spring MVC, Tomcat y Jackson -->
     <dependency>
-      <groupId>org.junit.jupiter</groupId>
-      <artifactId>junit-jupiter-api</artifactId>
-      <scope>test</scope>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-web</artifactId>
     </dependency>
 
+    <!-- JUnit, Mockito y utilidades de prueba de Spring -->
     <dependency>
-      <groupId>org.junit.jupiter</groupId>
-      <artifactId>junit-jupiter-params</artifactId>
-      <scope>test</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>com.fasterxml.jackson.core</groupId>
-      <artifactId>jackson-databind</artifactId>
-      <version>${jackson.version}</version>
-    </dependency>
-
-    <dependency>
-      <groupId>org.junit.jupiter</groupId>
-      <artifactId>junit-jupiter-engine</artifactId>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-test</artifactId>
       <scope>test</scope>
     </dependency>
 
   </dependencies>
 
-<build>
-
-  <plugins>
-
-    <!-- Permite ejecutar la aplicación con mvn exec:java -->
-    <plugin>
-      <groupId>org.codehaus.mojo</groupId>
-      <artifactId>exec-maven-plugin</artifactId>
-      <version>3.5.0</version>
-
-      <configuration>
-        <mainClass>
-          com.arley.poc.as400.TerminalSpike
-        </mainClass>
-      </configuration>
-    </plugin>
-
-    <!-- Genera un JAR ejecutable incluyendo todas las dependencias -->
-    <plugin>
-      <groupId>org.apache.maven.plugins</groupId>
-      <artifactId>maven-shade-plugin</artifactId>
-      <version>3.6.2</version>
-
-      <executions>
-        <execution>
-          <phase>package</phase>
-
-          <goals>
-            <goal>shade</goal>
-          </goals>
-
-          <configuration>
-            <shadedArtifactAttached>true</shadedArtifactAttached>
-            <shadedClassifierName>all</shadedClassifierName>
-            <createDependencyReducedPom>false</createDependencyReducedPom>
-
-            <transformers>
-              <transformer
-                implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
-
-                <mainClass>
-                  com.arley.poc.as400.TerminalSpike
-                </mainClass>
-
-              </transformer>
-            </transformers>
-          </configuration>
-        </execution>
-      </executions>
-    </plugin>
-
-  </plugins>
-
-  <pluginManagement>
+  <build>
     <plugins>
 
+      <!-- Conserva la ejecución actual del spike por consola -->
       <plugin>
-        <artifactId>maven-clean-plugin</artifactId>
-        <version>3.4.0</version>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>exec-maven-plugin</artifactId>
+        <version>3.5.0</version>
+
+        <configuration>
+          <mainClass>
+            com.arley.poc.as400.TerminalSpike
+          </mainClass>
+        </configuration>
       </plugin>
 
+      <!-- Conserva el fat JAR CLI terminado en -all.jar -->
       <plugin>
-        <artifactId>maven-resources-plugin</artifactId>
-        <version>3.3.1</version>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-shade-plugin</artifactId>
+        <version>3.6.2</version>
+
+        <executions>
+          <execution>
+            <phase>package</phase>
+
+            <goals>
+              <goal>shade</goal>
+            </goals>
+
+            <configuration>
+              <shadedArtifactAttached>true</shadedArtifactAttached>
+              <shadedClassifierName>all</shadedClassifierName>
+              <createDependencyReducedPom>false</createDependencyReducedPom>
+
+              <transformers combine.self="override">
+                <transformer
+                  implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+
+                  <mainClass>
+                    com.arley.poc.as400.TerminalSpike
+                  </mainClass>
+
+                </transformer>
+              </transformers>
+            </configuration>
+          </execution>
+        </executions>
       </plugin>
 
+      <!-- Genera el ejecutable de la API terminado en -boot.jar -->
       <plugin>
-        <artifactId>maven-compiler-plugin</artifactId>
-        <version>3.13.0</version>
-      </plugin>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-maven-plugin</artifactId>
 
-      <plugin>
-        <artifactId>maven-surefire-plugin</artifactId>
-        <version>3.3.0</version>
-      </plugin>
+        <configuration>
+          <mainClass>
+            com.arley.poc.as400.As400Application
+          </mainClass>
+        </configuration>
 
-      <plugin>
-        <artifactId>maven-jar-plugin</artifactId>
-        <version>3.4.2</version>
-      </plugin>
+        <executions>
+          <execution>
+            <id>repackage</id>
 
-      <plugin>
-        <artifactId>maven-install-plugin</artifactId>
-        <version>3.1.2</version>
-      </plugin>
-
-      <plugin>
-        <artifactId>maven-deploy-plugin</artifactId>
-        <version>3.1.2</version>
-      </plugin>
-
-      <plugin>
-        <artifactId>maven-site-plugin</artifactId>
-        <version>3.12.1</version>
-      </plugin>
-
-      <plugin>
-        <artifactId>maven-project-info-reports-plugin</artifactId>
-        <version>3.6.1</version>
+            <configuration>
+              <classifier>boot</classifier>
+            </configuration>
+          </execution>
+        </executions>
       </plugin>
 
     </plugins>
-  </pluginManagement>
-
-</build>
+  </build>
 
 </project>
