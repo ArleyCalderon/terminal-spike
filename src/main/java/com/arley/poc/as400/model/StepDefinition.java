@@ -1,23 +1,12 @@
 package com.arley.poc.as400.model;
 
+import java.util.List;
+
 /**
  * Representa un paso individual de un proceso definido en JSON.
  *
  * No todas las propiedades se utilizan en todas las acciones.
  * La acción determina cuáles son necesarias.
- *
- * Ejemplos:
- *
- * WAIT_FOR_TEXT:
- * - text
- * - timeoutSeconds
- *
- * WRITE_FIELD:
- * - fieldIndex
- * - value
- *
- * PRESS_KEY:
- * - key
  */
 public record StepDefinition(
     String id,
@@ -29,7 +18,9 @@ public record StepDefinition(
     String key,
     Integer timeoutSeconds,
     Integer minimumFields,
-    boolean continueOnError
+    boolean continueOnError,
+    String target,
+    List<ExtractionFieldDefinition> fields
 ) {
 
     public StepDefinition {
@@ -68,16 +59,45 @@ public record StepDefinition(
                 "La cantidad mínima de campos no puede ser negativa."
             );
         }
+
+        /*
+         * Jackson enviará null cuando un paso normal no incluya
+         * la propiedad fields en el JSON.
+         */
+        fields = fields == null
+            ? List.of()
+            : List.copyOf(fields);
+    }
+
+    /**
+     * Conserva compatibilidad con código y pruebas anteriores
+     * que construyan pasos sin configuración de extracción.
+     */
+    public StepDefinition(
+        String id,
+        StepAction action,
+        String description,
+        String text,
+        Integer fieldIndex,
+        String value,
+        String key,
+        Integer timeoutSeconds,
+        Integer minimumFields,
+        boolean continueOnError
+    ) {
+        this(
+            id,
+            action,
+            description,
+            text,
+            fieldIndex,
+            value,
+            key,
+            timeoutSeconds,
+            minimumFields,
+            continueOnError,
+            null,
+            List.of()
+        );
     }
 }
-
-/*
-{
-  "id": "write-command",
-  "action": "WRITE_FIELD",
-  "description": "Escribir DSPJOB en el campo de comandos",
-  "fieldIndex": 0,
-  "value": "DSPJOB",
-  "continueOnError": false
-}
- */

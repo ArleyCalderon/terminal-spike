@@ -66,11 +66,17 @@
       "continueOnError": false
     },
     {
+      "id": "print-job-status",
+      "action": "PRINT_SCREEN",
+      "description": "Imprimir el menu principal",
+      "continueOnError": false
+    },
+    {
       "id": "write-dspjob",
       "action": "WRITE_FIELD",
       "description": "Escribir el comando DSPJOB",
       "fieldIndex": 0,
-      "value": "DSPJOB",
+      "value": "DSPJOB OPTION(*STSA)",
       "continueOnError": false
     },
     {
@@ -123,6 +129,65 @@
       "timeoutSeconds": 20,
       "continueOnError": false
     },
+{
+      "id": "write-dspjob-runa",
+      "action": "WRITE_FIELD",
+      "description": "Escribir el comando DSPJOB",
+      "fieldIndex": 0,
+      "value": "DSPJOB OPTION(*RUNA)",
+      "continueOnError": false
+    },
+    {
+      "id": "run-dspjob-runa",
+      "action": "PRESS_KEY",
+      "description": "Ejecutar el comando DSPJOB OPTION(*RUNA)",
+      "key": "ENTER",
+      "continueOnError": false
+    },
+    {
+      "id": "wait-display-job-runa",
+      "action": "WAIT_FOR_TEXT",
+      "description": "Confirmar la pantalla Display Job",
+      "text": "Display Job",
+      "timeoutSeconds": 20,
+      "continueOnError": false
+    },
+    {
+      "id": "wait-display-job-keyboard-runa",
+      "action": "WAIT_FOR_KEYBOARD_UNLOCKED",
+      "description": "Esperar que Display Job permita interacción",
+      "timeoutSeconds": 20,
+      "continueOnError": false
+    },
+    {
+      "id": "print-display-job-runa",
+      "action": "PRINT_SCREEN",
+      "description": "Imprimir la pantalla de resultado",
+      "continueOnError": false
+    },
+    {
+      "id": "return-main-menu-runa",
+      "action": "PRESS_KEY",
+      "description": "Regresar al menú principal",
+      "key": "PF3",
+      "continueOnError": false
+    },
+    {
+      "id": "wait-main-menu-after-pf3-runa",
+      "action": "WAIT_FOR_TEXT",
+      "description": "Confirmar el regreso al menú principal",
+      "text": "IBM i Main Menu",
+      "timeoutSeconds": 20,
+      "continueOnError": false
+    },
+    {
+      "id": "wait-keyboard-after-pf3-runa",
+      "action": "WAIT_FOR_KEYBOARD_UNLOCKED",
+      "description": "Esperar que el menú permita escritura",
+      "timeoutSeconds": 20,
+      "continueOnError": false
+    },
+
     {
       "id": "write-signoff",
       "action": "WRITE_FIELD",

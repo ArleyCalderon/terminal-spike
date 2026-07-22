@@ -36,5 +36,11 @@ public enum StepAction {
     /**
      * Imprime el contenido actual de la pantalla.
      */
-    PRINT_SCREEN
+    PRINT_SCREEN,
+
+    /**
+     * Extrae valores de la pantalla actual y los agrega
+     * al resultado estructurado del proceso.
+     */
+    EXTRACT_SCREEN_DATA
 }

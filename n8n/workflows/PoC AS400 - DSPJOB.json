@@ -1,0 +1,290 @@
+{
+  "name": "PoC AS400 - DSPJOB",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "269f4d51-4e84-4137-be68-19b09350fa95",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://terminal-spike-api:8080/api/jobs",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "{\n  \"id\": \"dspjob\",\n  \"name\": \"Consulta DSPJOB\",\n  \"version\": \"1.0.0\",\n  \"description\": \"Inicia sesión, ejecuta DSPJOB, regresa al menú y cierra la sesión.\",\n  \"steps\": [\n    {\n      \"id\": \"wait-login-text\",\n      \"action\": \"WAIT_FOR_TEXT\",\n      \"description\": \"Esperar la pantalla de autenticación\",\n      \"text\": \"Your user name:\",\n      \"timeoutSeconds\": 20,\n      \"continueOnError\": false\n    },\n    {\n      \"id\": \"wait-login-fields\",\n      \"action\": \"WAIT_FOR_EDITABLE_FIELDS\",\n      \"description\": \"Esperar los campos de usuario y contraseña\",\n      \"minimumFields\": 2,\n      \"timeoutSeconds\": 20,\n      \"continueOnError\": false\n    },\n    {\n    \"id\": \"wait-login-keyboard\",\n    \"action\": \"WAIT_FOR_KEYBOARD_UNLOCKED\",\n    \"description\": \"Esperar que la pantalla de login permita escritura\",\n    \"timeoutSeconds\": 20,\n    \"continueOnError\": false\n    },\n    {\n      \"id\": \"write-username\",\n      \"action\": \"WRITE_FIELD\",\n      \"description\": \"Escribir el usuario\",\n      \"fieldIndex\": 0,\n      \"value\": \"${AS400_USERNAME}\",\n      \"continueOnError\": false\n    },\n    {\n      \"id\": \"write-password\",\n      \"action\": \"WRITE_FIELD\",\n      \"description\": \"Escribir la contraseña\",\n      \"fieldIndex\": 1,\n      \"value\": \"${AS400_PASSWORD}\",\n      \"continueOnError\": false\n    },\n    {\n      \"id\": \"submit-login\",\n      \"action\": \"PRESS_KEY\",\n      \"description\": \"Enviar las credenciales\",\n      \"key\": \"ENTER\",\n      \"continueOnError\": false\n    },\n    {\n      \"id\": \"wait-main-menu\",\n      \"action\": \"WAIT_FOR_TEXT\",\n      \"description\": \"Confirmar el inicio de sesión\",\n      \"text\": \"IBM i Main Menu\",\n      \"timeoutSeconds\": 30,\n      \"continueOnError\": false\n    },\n    {\n      \"id\": \"wait-main-menu-keyboard\",\n      \"action\": \"WAIT_FOR_KEYBOARD_UNLOCKED\",\n      \"description\": \"Esperar que el menú permita escritura\",\n      \"timeoutSeconds\": 20,\n      \"continueOnError\": false\n    },\n    {\n      \"id\": \"write-dspjob\",\n      \"action\": \"WRITE_FIELD\",\n      \"description\": \"Escribir el comando DSPJOB\",\n      \"fieldIndex\": 0,\n      \"value\": \"DSPJOB\",\n      \"continueOnError\": false\n    },\n    {\n      \"id\": \"run-dspjob\",\n      \"action\": \"PRESS_KEY\",\n      \"description\": \"Ejecutar el comando DSPJOB\",\n      \"key\": \"ENTER\",\n      \"continueOnError\": false\n    },\n    {\n      \"id\": \"wait-display-job\",\n      \"action\": \"WAIT_FOR_TEXT\",\n      \"description\": \"Confirmar la pantalla Display Job\",\n      \"text\": \"Display Job\",\n      \"timeoutSeconds\": 20,\n      \"continueOnError\": false\n    },\n    {\n      \"id\": \"wait-display-job-keyboard\",\n      \"action\": \"WAIT_FOR_KEYBOARD_UNLOCKED\",\n      \"description\": \"Esperar que Display Job permita interacción\",\n      \"timeoutSeconds\": 20,\n      \"continueOnError\": false\n    },\n    {\n      \"id\": \"print-display-job\",\n      \"action\": \"PRINT_SCREEN\",\n      \"description\": \"Imprimir la pantalla de resultado\",\n      \"continueOnError\": false\n    },\n    {\n      \"id\": \"return-main-menu\",\n      \"action\": \"PRESS_KEY\",\n      \"description\": \"Regresar al menú principal\",\n      \"key\": \"PF3\",\n      \"continueOnError\": false\n    },\n    {\n      \"id\": \"wait-main-menu-after-pf3\",\n      \"action\": \"WAIT_FOR_TEXT\",\n      \"description\": \"Confirmar el regreso al menú principal\",\n      \"text\": \"IBM i Main Menu\",\n      \"timeoutSeconds\": 20,\n      \"continueOnError\": false\n    },\n    {\n      \"id\": \"wait-keyboard-after-pf3\",\n      \"action\": \"WAIT_FOR_KEYBOARD_UNLOCKED\",\n      \"description\": \"Esperar que el menú permita escritura\",\n      \"timeoutSeconds\": 20,\n      \"continueOnError\": false\n    },\n    {\n      \"id\": \"write-signoff\",\n      \"action\": \"WRITE_FIELD\",\n      \"description\": \"Escribir el comando SIGNOFF\",\n      \"fieldIndex\": 0,\n      \"value\": \"SIGNOFF\",\n      \"continueOnError\": false\n    },\n    {\n      \"id\": \"run-signoff\",\n      \"action\": \"PRESS_KEY\",\n      \"description\": \"Ejecutar SIGNOFF\",\n      \"key\": \"ENTER\",\n      \"continueOnError\": false\n    },\n    {\n      \"id\": \"wait-final-screen\",\n      \"action\": \"WAIT_FOR_TEXT\",\n      \"description\": \"Confirmar la pantalla final cuando esté disponible\",\n      \"text\": \"Your user name:\",\n      \"timeoutSeconds\": 15,\n      \"continueOnError\": true\n    }\n  ]\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        208,
+        0
+      ],
+      "id": "959af5f4-fff1-4914-a9b6-c5936eecf1c5",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "amount": 1
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        416,
+        0
+      ],
+      "id": "bd77a8f4-741d-4b75-b98f-38cc91f5dbd7",
+      "name": "Wait",
+      "webhookId": "ed9603d7-adb5-40f9-9801-b4633602c59c"
+    },
+    {
+      "parameters": {
+        "url": "=http://terminal-spike-api:8080/api/jobs/{{$json.jobId}}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.4,
+      "position": [
+        624,
+        0
+      ],
+      "id": "30e72eb1-238b-46eb-b290-0bed0d573093",
+      "name": "HTTP Request1"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "1d0e122f-eb71-4d94-9f8f-c61034d86961",
+              "leftValue": "={{ $json.status === 'PENDING' || $json.status === 'RUNNING' }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        832,
+        0
+      ],
+      "id": "8df62fd1-3959-4fe7-82d9-73b89cdabdc9",
+      "name": "Sigue jecutando?"
+    },
+    {
+      "parameters": {
+        "jsCode": "const job = $input.first().json;\nconst result = job.result ?? {};\n\nconst steps = Array.isArray(result.steps)\n  ? result.steps\n  : [];\n\nreturn [\n  {\n    json: {\n      jobId: job.jobId,\n      jobStatus: job.status,\n\n      processId: job.processId,\n      processName: job.processName,\n\n      executionStatus: result.status ?? null,\n      durationMs: result.durationMs ?? null,\n\n      stepsExecuted: steps.length,\n\n      completedSteps: steps.filter(\n        step => step.status === 'COMPLETED'\n      ).length,\n\n      warningSteps: steps.filter(\n        step => step.status === 'IGNORED_ERROR'\n      ).length,\n\n      failedSteps: steps.filter(\n        step => step.status === 'FAILED'\n      ).length,\n\n      failedStepId: result.failedStepId ?? null,\n\n      errorMessage:\n        result.errorMessage ??\n        job.errorMessage ??\n        null,\n\n      steps\n    }\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1040,
+        16
+      ],
+      "id": "8a9e6568-a479-48ef-bb03-5f89f3f9a09a",
+      "name": "preparar resultado"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "cba28794-0e3b-4462-8d4e-ea3c9f090947",
+              "leftValue": "={{ ['COMPLETED', 'COMPLETED_WITH_WARNINGS'].includes($json.executionStatus) }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1248,
+        16
+      ],
+      "id": "ea4a3bb3-bc5c-4565-ab73-57553c5e29fe",
+      "name": "Ejecucion exitosa?"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "b7b530a7-f1cb-432a-982a-41d3c172c154",
+              "name": "outcome",
+              "value": "SUCCESS",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1456,
+        -80
+      ],
+      "id": "a25ada94-ca6a-440d-9188-0dcab7eb9d01",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "errorMessage": "={{\n  'Falló el proceso '\n  + ($json.processName ?? 'desconocido')\n  + ' en el paso '\n  + ($json.failedStepId ?? 'desconocido')\n  + ': '\n  + ($json.errorMessage ?? 'Sin detalle del error')\n}}"
+      },
+      "type": "n8n-nodes-base.stopAndError",
+      "typeVersion": 1,
+      "position": [
+        1456,
+        112
+      ],
+      "id": "920e1fe7-3086-425a-810f-70444095cb03",
+      "name": "proceso as400 fallido"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request1": {
+      "main": [
+        [
+          {
+            "node": "Sigue jecutando?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sigue jecutando?": {
+      "main": [
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "preparar resultado",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "preparar resultado": {
+      "main": [
+        [
+          {
+            "node": "Ejecucion exitosa?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ejecucion exitosa?": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "proceso as400 fallido",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "availableInMCP": false,
+    "timeSavedMode": "fixed",
+    "callerPolicy": "workflowsFromSameOwner",
+    "executionTimeout": 300
+  },
+  "versionId": "e9be700f-8dd7-4efa-bbb2-43b74be574c1",
+  "meta": {
+    "instanceId": "778d6d2cd5b3112600fdbf2c09e0ab187782eda43e4b6eb6228a122497289c25"
+  },
+  "nodeGroups": [],
+  "id": "ZRh0W5x8IElDTqET",
+  "tags": []
+}

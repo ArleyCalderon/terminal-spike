@@ -1,0 +1,25 @@
+services:
+  as400-api:
+    build:
+      context: .
+    container_name: as400-api
+    restart: unless-stopped
+
+    env_file:
+      - .env
+
+    volumes:
+      - type: bind
+        source: ./certs/keystore
+        target: /root/.tn5250j/keystore
+        read_only: true
+        bind:
+          create_host_path: false
+
+    networks:
+      - n8n-network
+
+networks:
+  n8n-network:
+    external: true
+    name: n8n-5vjf_default
