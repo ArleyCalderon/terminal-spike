@@ -6,7 +6,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
-
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import com.arley.poc.as400.model.ProcessDefinition;
 import com.arley.poc.as400.model.StepDefinition;
 import com.arley.poc.as400.result.ExecutionResult;
@@ -26,6 +28,8 @@ public final class ProcessExecutor {
     private final TerminalActions actions;
     private final ScreenReader screenReader;
     private final VariableResolver variableResolver;
+    private final ScreenDataExtractor screenDataExtractor;
+
 
     public ProcessExecutor(
         TerminalActions actions,
@@ -41,6 +45,10 @@ public final class ProcessExecutor {
             screenReader,
             "ScreenReader no puede ser nulo."
         );
+
+        this.screenDataExtractor =
+        new ScreenDataExtractor(this.screenReader);
+
 
         this.variableResolver = Objects.requireNonNull(
             variableResolver,
@@ -65,6 +73,9 @@ public final class ProcessExecutor {
         List<StepResult> stepResults =
             new ArrayList<>();
 
+        Map<String, Map<String, String>> extractedData =
+        new LinkedHashMap<>();
+
         boolean hasIgnoredErrors = false;
 
         printProcessHeader(process);
@@ -76,11 +87,12 @@ public final class ProcessExecutor {
                 process.steps().get(index);
 
             StepResult stepResult =
-                executeStepWithErrorHandling(
-                    step,
-                    index + 1,
-                    totalSteps
-                );
+            executeStepWithErrorHandling(
+                step,
+                index + 1,
+                totalSteps,
+                extractedData
+            );
 
             stepResults.add(stepResult);
 
@@ -102,6 +114,7 @@ public final class ProcessExecutor {
                         processStartedAt,
                         processStartedNanos,
                         stepResults,
+                        extractedData,
                         step.id(),
                         stepResult.errorMessage()
                     );
@@ -124,6 +137,7 @@ public final class ProcessExecutor {
                 processStartedAt,
                 processStartedNanos,
                 stepResults,
+                extractedData,
                 null,
                 null
             );
@@ -134,9 +148,10 @@ public final class ProcessExecutor {
     }
 
     private StepResult executeStepWithErrorHandling(
-        StepDefinition step,
-        int currentStep,
-        int totalSteps
+    StepDefinition step,
+    int currentStep,
+    int totalSteps,
+    Map<String, Map<String, String>> extractedData
     ) {
         printStepHeader(
             step,
@@ -148,7 +163,10 @@ public final class ProcessExecutor {
         long stepStartedNanos = System.nanoTime();
 
         try {
-            executeStep(step);
+           executeStep(
+                step,
+                extractedData
+            );
 
             Instant stepFinishedAt = Instant.now();
 
@@ -204,33 +222,36 @@ public final class ProcessExecutor {
         }
     }
 
-    private ExecutionResult buildExecutionResult(
-        ProcessDefinition process,
-        ExecutionStatus status,
-        Instant processStartedAt,
-        long processStartedNanos,
-        List<StepResult> stepResults,
-        String failedStepId,
-        String errorMessage
-    ) {
-        return new ExecutionResult(
-            process.id(),
-            process.name(),
-            process.version(),
-            status,
-            processStartedAt,
-            Instant.now(),
-            elapsedMilliseconds(
-                processStartedNanos
-            ),
-            stepResults,
-            failedStepId,
-            errorMessage
-        );
+private ExecutionResult buildExecutionResult(
+    ProcessDefinition process,
+    ExecutionStatus status,
+    Instant processStartedAt,
+    long processStartedNanos,
+    List<StepResult> stepResults,
+    Map<String, Map<String, String>> extractedData,
+    String failedStepId,
+    String errorMessage
+) {
+       return new ExecutionResult(
+        process.id(),
+        process.name(),
+        process.version(),
+        status,
+        processStartedAt,
+        Instant.now(),
+        elapsedMilliseconds(
+            processStartedNanos
+        ),
+        stepResults,
+        extractedData,
+        failedStepId,
+        errorMessage
+    );
     }
 
     private void executeStep(
-        StepDefinition step
+    StepDefinition step,
+    Map<String, Map<String, String>> extractedData
     ) {
         Duration timeout = resolveTimeout(step);
 
@@ -259,9 +280,66 @@ public final class ProcessExecutor {
                 pressKey(step);
 
             case PRINT_SCREEN ->
-                screenReader.printScreen();
+            screenReader.printScreen();
+
+            case EXTRACT_SCREEN_DATA ->
+                extractScreenData(step,extractedData);
         }
     }
+
+    /**
+ * Extrae información de la pantalla actual y la guarda
+ * bajo el target definido en el paso.
+ */
+private void extractScreenData(
+    StepDefinition step,
+    Map<String, Map<String, String>> extractedData
+) {
+    String target = step.target();
+
+    if (target == null || target.isBlank()) {
+        throw invalidStep(
+            step,
+            "target es obligatorio para EXTRACT_SCREEN_DATA."
+        );
+    }
+
+    if (step.fields() == null || step.fields().isEmpty()) {
+        throw invalidStep(
+            step,
+            "Debe existir al menos un campo para extraer."
+        );
+    }
+
+    if (extractedData.containsKey(target)) {
+        throw invalidStep(
+            step,
+            "Ya existen datos extraídos para el target: "
+                + target
+        );
+    }
+
+    Map<String, String> values =
+        screenDataExtractor.extract(
+            step.fields()
+        );
+
+    extractedData.put(
+        target,
+        values
+    );
+
+    /*
+     * Mostramos los nombres de los campos, pero no sus valores,
+     * porque en procesos reales podrían contener datos sensibles.
+     */
+    System.out.println(
+        "Campos extraídos ["
+            + target
+            + "]: "
+            + values.keySet()
+    );
+}
 
     private void waitForEditableFields(
         StepDefinition step,
