@@ -39,6 +39,50 @@ public final class ScreenReader {
     }
 
     /**
+     * Devuelve una fila completa de la pantalla.
+     *
+     * La fila recibida utiliza coordenadas visibles:
+     * la primera fila es 1.
+     */
+    public String readLine(int row) {
+        int rows = screen.getRows();
+        int columns = screen.getColumns();
+
+        if (row <= 0 || row > rows) {
+            throw new IllegalArgumentException(
+                "La fila debe estar entre 1 y "
+                    + rows
+                    + ". Valor recibido: "
+                    + row
+            );
+        }
+
+        char[] characters = screen.getScreenAsChars();
+
+        if (characters == null) {
+            return "";
+        }
+
+        int start = (row - 1) * columns;
+
+        if (start >= characters.length) {
+            return "";
+        }
+
+        int length = Math.min(
+            columns,
+            characters.length - start
+        );
+
+        return new String(
+            characters,
+            start,
+            length
+        )
+            .replace('\0', ' ');
+    }
+
+    /**
      * Comprueba si la pantalla contiene un texto determinado.
      */
     public boolean contains(String expectedText) {
@@ -79,6 +123,120 @@ public final class ScreenReader {
         return List.copyOf(editableFields);
     }
 
+    /**
+     * Extrae una región exacta de una fila.
+     *
+     * Las coordenadas son visibles y comienzan desde 1.
+     */
+    public String readRegion(
+        int row,
+        int column,
+        int length
+    ) {
+        int rows = screen.getRows();
+        int columns = screen.getColumns();
+
+        if (row <= 0 || row > rows) {
+            throw new IllegalArgumentException(
+                "La fila debe estar entre 1 y "
+                    + rows
+                    + ". Valor recibido: "
+                    + row
+            );
+        }
+
+        if (column <= 0 || column > columns) {
+            throw new IllegalArgumentException(
+                "La columna debe estar entre 1 y "
+                    + columns
+                    + ". Valor recibido: "
+                    + column
+            );
+        }
+
+        if (length <= 0) {
+            throw new IllegalArgumentException(
+                "La longitud debe ser mayor que cero."
+            );
+        }
+
+        int finalColumn = column + length - 1;
+
+        if (finalColumn > columns) {
+            throw new IllegalArgumentException(
+                "La región supera el ancho de la pantalla. "
+                    + "Columna inicial: "
+                    + column
+                    + ", longitud: "
+                    + length
+                    + ", columnas disponibles: "
+                    + columns
+            );
+        }
+
+        String line = readLine(row);
+
+        int startIndex = column - 1;
+        int endIndex = startIndex + length;
+
+        if (startIndex >= line.length()) {
+            return "";
+        }
+
+        endIndex = Math.min(
+            endIndex,
+            line.length()
+        );
+
+        return line.substring(
+            startIndex,
+            endIndex
+        ).strip();
+    }
+
+        /**
+         * Busca una etiqueta en la pantalla y devuelve el valor
+         * que aparece después del carácter ":" en esa misma fila.
+         */
+        public String readAfterLabel(
+            String label
+        ) {
+            if (label == null || label.isBlank()) {
+                throw new IllegalArgumentException(
+                    "La etiqueta de extracción no puede estar vacía."
+                );
+            }
+
+            int rows = screen.getRows();
+
+            for (int row = 1; row <= rows; row++) {
+                String line = readLine(row);
+
+                int labelIndex = line.indexOf(label);
+
+                if (labelIndex < 0) {
+                    continue;
+                }
+
+                int colonIndex = line.indexOf(
+                    ':',
+                    labelIndex + label.length()
+                );
+
+                if (colonIndex < 0) {
+                    continue;
+                }
+
+                return line.substring(
+                    colonIndex + 1
+                ).strip();
+            }
+
+            throw new IllegalArgumentException(
+                "No se encontró la etiqueta en la pantalla: "
+                    + label
+            );
+        }
     /**
      * Obtiene un campo editable por índice.
      */
